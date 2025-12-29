@@ -1,0 +1,15 @@
+name: shared
+description: Shared code for all apps
+
+# Menambahkan SDK constraint untuk mendukung Null Safety
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  # Dependensi yang digunakan bersama, jika ada
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

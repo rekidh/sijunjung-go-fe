@@ -1,0 +1,26 @@
+name: sijunjung_go_fe_customer
+description: A Flutter project for the customer app
+
+# Menambahkan SDK constraint di bagian atas file
+environment:
+  sdk: ">=3.10.0 <4.0.0"  # Tentukan versi SDK Dart yang digunakan
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Dependensi khusus customer
+  firebase_auth: ^3.3.4
+  provider: ^6.0.3
+  google_maps_flutter: ^2.1.1
+
+  # Mengimpor kode bersama dari folder shared
+  shared:
+    path: ../shared
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
