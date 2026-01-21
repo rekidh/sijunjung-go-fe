@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared/widgets/splash_screen.dart';
+import 'package:shared/theme/app_theme.dart';
 import 'screens/home.dart';
 import 'screens/auth/login.dart';
 
@@ -11,10 +12,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Sijunjung Go',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-      ),
+      theme: AppTheme.lightTheme,
       home: const SplashScreen(
         homeScreen: HomeScreen(),
         loginScreen: LoginScreen(),

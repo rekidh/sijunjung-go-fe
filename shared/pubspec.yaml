@@ -1,15 +1,71 @@
 name: shared
 description: Shared code for all apps
 publish_to: "none"
-# Menambahkan SDK constraint untuk mendukung Null Safety
+
 environment:
   sdk: ">=3.7.0 <4.0.0"
 
 dependencies:
-  # Dependensi yang digunakan bersama, jika ada
   flutter:
     sdk: flutter
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+flutter:
+  assets:
+    - assets/images/icons/
+    - assets/images/logo/
+
+  fonts:
+    - family: SofiaPro
+      fonts:
+        - asset: assets/fonts/sofia-pro/Sofia Pro UltraLight Az.otf
+          weight: 200
+        - asset: assets/fonts/sofia-pro/Sofia Pro UltraLight Italic Az.otf
+          weight: 200
+          style: italic
+
+        - asset: assets/fonts/sofia-pro/Sofia Pro ExtraLight Az.otf
+          weight: 300
+        - asset: assets/fonts/sofia-pro/Sofia Pro ExtraLight Italic Az.otf
+          weight: 300
+          style: italic
+
+        - asset: assets/fonts/sofia-pro/Sofia Pro Light Az.otf
+          weight: 400
+        - asset: assets/fonts/sofia-pro/Sofia Pro Light Italic Az.otf
+          weight: 400
+          style: italic
+
+        - asset: assets/fonts/sofia-pro/Sofia Pro Regular Az.otf
+          weight: 500
+        - asset: assets/fonts/sofia-pro/Sofia Pro Regular Italic Az.otf
+          weight: 500
+          style: italic
+
+        - asset: assets/fonts/sofia-pro/Sofia Pro Medium Az.otf
+          weight: 600
+        - asset: assets/fonts/sofia-pro/Sofia Pro Medium Italic Az.otf
+          weight: 600
+          style: italic
+
+        - asset: assets/fonts/sofia-pro/Sofia Pro Semi Bold Az.otf
+          weight: 700
+        - asset: assets/fonts/sofia-pro/Sofia Pro Semi Bold Italic Az.otf
+          weight: 700
+          style: italic
+
+        - asset: assets/fonts/sofia-pro/Sofia Pro Bold Az.otf
+          weight: 800
+        - asset: assets/fonts/sofia-pro/Sofia Pro Bold Italic Az.otf
+          weight: 800
+          style: italic
+
+        - asset: assets/fonts/sofia-pro/Sofia Pro Black Az.otf
+          weight: 900
+        - asset: assets/fonts/sofia-pro/Sofia Pro Black Italic Az.otf
+          weight: 900
+          style: italic
+
