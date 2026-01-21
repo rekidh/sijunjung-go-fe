@@ -3,7 +3,7 @@ description: A Flutter project for the driver app
 
 # Menambahkan SDK constraint di bagian atas file
 environment:
-  sdk: ">=3.10.0 <4.0.0"  # Tentukan versi SDK Dart yang digunakan
+  sdk: ">=3.7.0 <4.0.0"  # Tentukan versi SDK Dart yang digunakan
 
 dependencies:
   flutter:
