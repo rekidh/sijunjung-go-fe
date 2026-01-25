@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 import 'package:shared/utils/preferences_util.dart';
 import '../auth/login.dart';
+import '../auth/phone_registration.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -197,7 +198,11 @@ class WelcomeScreen extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton(
-                      onPressed: () => _completeOnboarding(context),
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const PhoneRegistration()),
+                      ),
+
                       style: OutlinedButton.styleFrom(
                         backgroundColor: Colors.white.withAlpha(50),
                         foregroundColor: Colors.white,
