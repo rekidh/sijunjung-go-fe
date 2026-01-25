@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../services/auth_service.dart';
+import '../utils/preferences_util.dart';
 
 class SplashScreen extends StatefulWidget {
   final Widget homeScreen;
   final Widget loginScreen;
+  final Widget? welcomeScreen; // Optional now
 
   const SplashScreen({
     super.key,
     required this.homeScreen,
     required this.loginScreen,
+    this.welcomeScreen,
   });
 
   @override
@@ -17,27 +21,51 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   final AuthService _authService = AuthService();
+  final PreferencesUtil _preferencesUtil = PreferencesUtil();
 
   @override
   void initState() {
     super.initState();
-    _checkAuth();
+    if (kDebugMode) {
+     // _preferencesUtil.resetOnboarding(); // Uncomment locally if needed for testing
+    }
+    _checkNavigation();
   }
 
-  void _checkAuth() async {
+  void _checkNavigation() async {
     bool loggedIn = await _authService.isLoggedIn();
 
-    // pindah ke halaman sesuai status login
+    if (!mounted) return;
+
     if (loggedIn) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => widget.homeScreen),
       );
     } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => widget.loginScreen),
-      );
+      // If welcomeScreen is provided, we check onboarding status
+      if (widget.welcomeScreen != null) {
+        bool onboardingCompleted = await _preferencesUtil.hasCompletedOnboarding();
+        if (!mounted) return;
+        
+        if (onboardingCompleted) {
+           Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => widget.loginScreen),
+          );
+        } else {
+           Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => widget.welcomeScreen!),
+          );
+        }
+      } else {
+        // Fallback for apps without onboarding (straight to logic)
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => widget.loginScreen),
+        );
+      }
     }
   }
 
@@ -77,7 +105,10 @@ class _SplashScreenState extends State<SplashScreen> {
                 margin: const EdgeInsets.only(top: 20.0),
                 child: Text(
                   'Sijunjung Go',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.bold,),
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    color: Colors.white, 
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               const SizedBox(height: 32),
