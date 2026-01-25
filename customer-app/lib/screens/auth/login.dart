@@ -88,7 +88,12 @@ class LoginScreen extends StatelessWidget {
                   Align(
                     alignment: Alignment.center,
                     child: TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const ResetPasswordScreen()),
+                        );
+                      },
                       child: const Text(
                         'Forgot password?',
                         style: TextStyle(

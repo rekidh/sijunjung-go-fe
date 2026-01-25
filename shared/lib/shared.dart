@@ -1,10 +1,12 @@
 library shared;
 
 // Export widgets
+export 'screens/auth/reset_password.dart';
 export 'widgets/splash_screen.dart';
 export 'widgets/custom_text_field.dart';
 export 'widgets/primary_button.dart';
 export 'widgets/social_login_button.dart';
+export 'widgets/otp_digit_field.dart';
 
 // Export services
 export 'services/auth_service.dart';

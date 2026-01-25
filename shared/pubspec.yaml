@@ -19,6 +19,8 @@ flutter:
   assets:
     - assets/images/icons/
     - assets/images/logo/
+    - assets/images/auth-background.png
+    - assets/images/welcome-background.png
     - assets/images/
 
   fonts:

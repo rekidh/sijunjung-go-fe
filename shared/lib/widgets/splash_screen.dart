@@ -27,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     if (kDebugMode) {
-     // _preferencesUtil.resetOnboarding(); // Uncomment locally if needed for testing
+     _preferencesUtil.resetOnboarding(); // Uncomment locally if needed for testing
     }
     _checkNavigation();
   }
