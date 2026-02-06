@@ -13,6 +13,7 @@ export 'services/auth_service.dart';
 
 // Export utils
 export 'utils/preferences_util.dart';
+export 'mixins/social_auth_mixin.dart';
 
 // Export external dependencies that are commonly used
 export 'package:font_awesome_flutter/font_awesome_flutter.dart';

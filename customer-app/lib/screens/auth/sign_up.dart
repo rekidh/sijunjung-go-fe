@@ -16,7 +16,7 @@ class SignUpScreen extends StatefulWidget {
   State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
+class _SignUpScreenState extends State<SignUpScreen> with SocialAuthMixin {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -67,46 +67,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
   }
 
-  Future<void> _handleGoogleSignIn() async {
-    setState(() => _isLoading = true);
-    try {
-      final response = await _authService.signInWithGoogle();
-      if (!mounted) return;
-
-      if (response.success) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-        );
-      } else if (response.code != 401) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.message)),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _handleFacebookSignIn() async {
-    setState(() => _isLoading = true);
-    try {
-      final response = await _authService.signInWithFacebook();
-      if (!mounted) return;
-
-      if (response.success) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-        );
-      } else if (response.code != 401) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.message)),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
+  void _onSocialSuccess() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
+    );
   }
 
   @override
@@ -260,7 +225,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         child: SocialLoginButton(
                           text: 'Facebook',
                           icon: const FaIcon(FontAwesomeIcons.facebook, color: Colors.blue),
-                          onPressed: _isLoading ? null : () => _handleFacebookSignIn(),
+                          onPressed: isSocialLoading || _isLoading ? null : () => handleFacebookSignIn(onSuccess: _onSocialSuccess),
                         ),
                       ),
                       const SizedBox(width: 20),
@@ -268,7 +233,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         child: SocialLoginButton(
                           text: 'Google',
                           icon: const FaIcon(FontAwesomeIcons.google, color: Colors.red), 
-                          onPressed: _isLoading ? null : () => _handleGoogleSignIn(),
+                          onPressed: isSocialLoading || _isLoading ? null : () => handleGoogleSignIn(onSuccess: _onSocialSuccess),
                         ),
                       ),
                     ],

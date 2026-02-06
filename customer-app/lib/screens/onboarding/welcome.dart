@@ -3,9 +3,19 @@ import 'package:shared/shared.dart';
 import 'package:shared/utils/preferences_util.dart';
 import '../auth/login.dart';
 import '../auth/phone_registration.dart';
+import 'package:shared/services/auth_service.dart';
+import '../home.dart';
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
+
+  @override
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen> with SocialAuthMixin {
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
 
   void _completeOnboarding(BuildContext context) async {
     await PreferencesUtil().setOnboardingCompleted(true);
@@ -15,6 +25,13 @@ class WelcomeScreen extends StatelessWidget {
         MaterialPageRoute(builder: (_) => const LoginScreen()),
       );
     }
+  }
+
+  void _onSocialSuccess() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
+    );
   }
 
   @override
@@ -138,11 +155,7 @@ class WelcomeScreen extends StatelessWidget {
                       // Facebook Button
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: () {
-                             // Social Login logic would go here
-                             // For now we treat it as completing onboarding if success
-                             _completeOnboarding(context);
-                          },
+                          onPressed: isSocialLoading ? null : () => handleFacebookSignIn(onSuccess: _onSocialSuccess),
                           icon: const FaIcon(FontAwesomeIcons.facebook, color: Colors.blue),
                           label: const Text('FACEBOOK'),
                           style: ElevatedButton.styleFrom(
@@ -166,9 +179,7 @@ class WelcomeScreen extends StatelessWidget {
                       // Google Button
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: () {
-                            _completeOnboarding(context);
-                          },
+                          onPressed: isSocialLoading ? null : () => handleGoogleSignIn(onSuccess: _onSocialSuccess),
                           // Initial Google Icon attempt - using font awesome or colored asset usually preferred for brand compliance
                           icon: const FaIcon(FontAwesomeIcons.google, color: Colors.red), 
                           label: const Text('GOOGLE'),
