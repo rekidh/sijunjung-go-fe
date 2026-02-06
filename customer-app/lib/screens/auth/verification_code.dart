@@ -1,11 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
-// Note: We need to import OtpDigitField explicitly if it's not exported by shared.dart yet, 
-// but I just exported it.
-// However, since I am in customer-app, I rely on package:shared.
+import 'package:shared/services/auth_service.dart';
+import '../home.dart';
 
-class VerificationCodeScreen extends StatelessWidget {
-  const VerificationCodeScreen({super.key});
+class VerificationCodeScreen extends StatefulWidget {
+  final String email;
+  const VerificationCodeScreen({super.key, required this.email});
+
+  @override
+  State<VerificationCodeScreen> createState() => _VerificationCodeScreenState();
+}
+
+class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
+
+  Future<void> _verifyOtp(String code) async {
+    setState(() => _isLoading = true);
+    try {
+      final response = await _authService.verifyOtp(widget.email, code);
+      if (!mounted) return;
+
+      if (response.success) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          (route) => false,
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,9 +96,9 @@ class VerificationCodeScreen extends StatelessWidget {
                   
                   const SizedBox(height: 12),
                   
-                  const Text(
-                    'Please type the verification code sent to\nsijunjunggo@gmail.com',
-                    style: TextStyle(
+                  Text(
+                    'Please type the verification code sent to\n${widget.email}',
+                    style: const TextStyle(
                       fontFamily: 'SofiaPro',
                       fontSize: 16,
                       color: Color(0xFF9796A1),
@@ -80,16 +110,12 @@ class VerificationCodeScreen extends StatelessWidget {
                   
                   // OTP Field
                   Center(
-                    child: OtpDigitField(
-                      length: 4,
-                      onCompleted: (code) {
-                        // Handle OTP completion
-                        // For now, just print or show snackbar
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('OTP Entered: $code')),
-                        );
-                      },
-                    ),
+                    child: _isLoading 
+                      ? const CircularProgressIndicator()
+                      : OtpDigitField(
+                        length: 4,
+                        onCompleted: _verifyOtp,
+                      ),
                   ),
                   
                   const SizedBox(height: 40),
@@ -99,7 +125,7 @@ class VerificationCodeScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        "I don’t recevier a code! ", // Typo from design copied? 'recevie' -> 'receive'. I'll fix it.
+                        "I don’t receive a code! ",
                         style: TextStyle(
                           fontFamily: 'SofiaPro',
                           color: Color(0xFF5A5A5A),
@@ -107,8 +133,11 @@ class VerificationCodeScreen extends StatelessWidget {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {
-                          // Resend logic
+                        onTap: () async {
+                          // TODO: Implement resend-otp in AuthService
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Resending code...')),
+                          );
                         },
                         child: const Text(
                           'Please resend',

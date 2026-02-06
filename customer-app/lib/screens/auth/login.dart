@@ -3,12 +3,56 @@ import 'package:shared/shared.dart';
 import 'package:shared/widgets/custom_text_field.dart';
 import 'package:shared/widgets/primary_button.dart';
 import 'package:shared/widgets/social_login_button.dart';
+import 'package:shared/services/auth_service.dart';
 import '../home.dart';
 import '../onboarding/welcome.dart';
 import 'sign_up.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
+
+  Future<void> _handleLogin() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final response = await _authService.login(email, password);
+      
+      if (!mounted) return;
+
+      if (response.success) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,15 +113,17 @@ class LoginScreen extends StatelessWidget {
                   
                   const SizedBox(height: 30),
                   
-                  const CustomTextField(
+                  CustomTextField(
+                    controller: _emailController,
                     label: 'E-mail',
-                    hint: 'Your email or phone',
+                    hint: 'Your email',
                     keyboardType: TextInputType.emailAddress,
                   ),
                   
                   const SizedBox(height: 20),
                   
-                  const CustomTextField(
+                  CustomTextField(
+                    controller: _passwordController,
                     label: 'Password',
                     hint: 'Password',
                     isPassword: true,
@@ -89,10 +135,7 @@ class LoginScreen extends StatelessWidget {
                     alignment: Alignment.center,
                     child: TextButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const ResetPasswordScreen()),
-                        );
+                        // Implementasi Reset Password nanti
                       },
                       child: const Text(
                         'Forgot password?',
@@ -112,12 +155,8 @@ class LoginScreen extends StatelessWidget {
                     child: PrimaryButton(
                       text: 'LOGIN',
                       width: 250,
-                      onPressed: () {
-                         Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (_) => const HomeScreen()),
-                        );
-                      },
+                      isLoading: _isLoading,
+                      onPressed: _handleLogin,
                     ),
                   ),
                   
@@ -206,5 +245,12 @@ class LoginScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 }

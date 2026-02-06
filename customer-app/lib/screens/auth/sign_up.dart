@@ -7,9 +7,65 @@ import 'package:shared/services/auth_service.dart';
 import 'package:shared/utils/preferences_util.dart';
 import '../home.dart';
 import 'login.dart';
+import 'verification_code.dart';
 
-class SignUpScreen extends StatelessWidget {
+class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
+
+  @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
+
+  Future<void> _handleSignUp() async {
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final response = await _authService.register(
+        fullName: name,
+        email: email,
+        password: password,
+      );
+
+      if (!mounted) return;
+
+      if (response.success) {
+        // Simpan email agar bisa digunakan di layar verifikasi
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VerificationCodeScreen(email: email),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,22 +123,25 @@ class SignUpScreen extends StatelessWidget {
                   
                   const SizedBox(height: 30),
                   
-                  const CustomTextField(
+                  CustomTextField(
+                    controller: _nameController,
                     label: 'Full name',
                     hint: 'Your full name',
                   ),
 
                   const SizedBox(height: 20),
 
-                  const CustomTextField(
+                  CustomTextField(
+                    controller: _emailController,
                     label: 'E-mail',
-                    hint: 'Your email or phone',
+                    hint: 'Your email',
                     keyboardType: TextInputType.emailAddress,
                   ),
                   
                   const SizedBox(height: 20),
                   
-                  const CustomTextField(
+                  CustomTextField(
+                    controller: _passwordController,
                     label: 'Password',
                     hint: 'Password',
                     isPassword: true,
@@ -94,18 +153,8 @@ class SignUpScreen extends StatelessWidget {
                     child: PrimaryButton(
                       text: 'SIGN UP',
                       width: 250,
-                      onPressed: () async {
-                         // Simulate Sign Up completion
-                         // In real app, call AuthService.signUp(...)
-                         // Then set onboarding complete just in case
-                         await PreferencesUtil().setOnboardingCompleted(true);
-                         if (context.mounted) {
-                           Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (_) => const HomeScreen()),
-                          );
-                         }
-                      },
+                      isLoading: _isLoading,
+                      onPressed: _handleSignUp,
                     ),
                   ),
                   
@@ -191,5 +240,13 @@ class SignUpScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 }
