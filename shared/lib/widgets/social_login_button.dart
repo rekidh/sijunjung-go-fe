@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 class SocialLoginButton extends StatelessWidget {
   final String text;
   final Widget icon;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   const SocialLoginButton({
     super.key,
     required this.text,
     required this.icon,
-    required this.onPressed,
+    this.onPressed,
   });
 
   @override

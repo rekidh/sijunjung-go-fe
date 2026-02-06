@@ -67,6 +67,48 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
   }
 
+  Future<void> _handleGoogleSignIn() async {
+    setState(() => _isLoading = true);
+    try {
+      final response = await _authService.signInWithGoogle();
+      if (!mounted) return;
+
+      if (response.success) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      } else if (response.code != 401) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _handleFacebookSignIn() async {
+    setState(() => _isLoading = true);
+    try {
+      final response = await _authService.signInWithFacebook();
+      if (!mounted) return;
+
+      if (response.success) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      } else if (response.code != 401) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -218,7 +260,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         child: SocialLoginButton(
                           text: 'Facebook',
                           icon: const FaIcon(FontAwesomeIcons.facebook, color: Colors.blue),
-                          onPressed: () {},
+                          onPressed: _isLoading ? null : () => _handleFacebookSignIn(),
                         ),
                       ),
                       const SizedBox(width: 20),
@@ -226,7 +268,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         child: SocialLoginButton(
                           text: 'Google',
                           icon: const FaIcon(FontAwesomeIcons.google, color: Colors.red), 
-                          onPressed: () {},
+                          onPressed: _isLoading ? null : () => _handleGoogleSignIn(),
                         ),
                       ),
                     ],
