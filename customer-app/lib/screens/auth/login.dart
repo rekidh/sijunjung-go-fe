@@ -7,6 +7,7 @@ import 'package:shared/services/auth_service.dart';
 import '../home.dart';
 import '../onboarding/welcome.dart';
 import 'sign_up.dart';
+import 'phone_registration.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -146,6 +147,27 @@ class _LoginScreenState extends State<LoginScreen> with SocialAuthMixin {
                       },
                       child: const Text(
                         'Forgot password?',
+                        style: TextStyle(
+                          fontFamily: 'SofiaPro',
+                          color: Color(0xFF55B6E7),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  
+                  Align(
+                    alignment: Alignment.center,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const PhoneRegistration()),
+                        );
+                      },
+                      child: const Text(
+                        'Login with Phone Number',
                         style: TextStyle(
                           fontFamily: 'SofiaPro',
                           color: Color(0xFF55B6E7),

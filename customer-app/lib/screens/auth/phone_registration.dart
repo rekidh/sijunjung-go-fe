@@ -1,8 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
+import 'package:shared/services/auth_service.dart';
+import 'verification_code.dart';
 
-class PhoneRegistration extends StatelessWidget {
+class PhoneRegistration extends StatefulWidget {
   const PhoneRegistration({super.key});
+
+  @override
+  State<PhoneRegistration> createState() => _PhoneRegistrationState();
+}
+
+class _PhoneRegistrationState extends State<PhoneRegistration> {
+  final TextEditingController _phoneController = TextEditingController();
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
+
+  Future<void> _handleSend() async {
+    final phone = _phoneController.text.trim();
+    if (phone.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your phone number')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      final response = await _authService.sendWhatsAppOtp(phone);
+      if (!mounted) return;
+
+      if (response.success) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VerificationCodeScreen(
+              identifier: phone,
+              isPhone: true,
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +126,8 @@ class PhoneRegistration extends StatelessWidget {
 
                       const SizedBox(height: 40),
 
-                      const CustomTextField(
+                      CustomTextField(
+                        controller: _phoneController,
                         label: 'Phone Number',
                         hint: 'Your phone number',
                         keyboardType: TextInputType.phone,
@@ -93,12 +139,8 @@ class PhoneRegistration extends StatelessWidget {
                         child: PrimaryButton(
                           text: 'Send',
                           width: 250,
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Send')),
-                            );
-                            Navigator.pop(context);
-                          },
+                          isLoading: _isLoading,
+                          onPressed: _handleSend,
                         ),
                       ),
 
@@ -114,5 +156,11 @@ class PhoneRegistration extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    super.dispose();
   }
 }

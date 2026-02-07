@@ -54,7 +54,7 @@ class _SignUpScreenState extends State<SignUpScreen> with SocialAuthMixin {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => VerificationCodeScreen(email: email),
+            builder: (_) => VerificationCodeScreen(identifier: email),
           ),
         );
       } else {

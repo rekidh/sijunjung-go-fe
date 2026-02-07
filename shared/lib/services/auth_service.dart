@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../models/api_response.dart';
@@ -73,7 +74,7 @@ class AuthService {
     }
   }
 
-  // Verify OTP
+  // Verify OTP (Email)
   Future<ApiResponse<Map<String, dynamic>>> verifyOtp(String email, String code) async {
     try {
       final response = await _apiClient.dio.post('/api/verify-otp', data: {
@@ -105,10 +106,64 @@ class AuthService {
     }
   }
 
+  // WhatsApp OTP: Send
+  Future<ApiResponse<dynamic>> sendWhatsAppOtp(String phone) async {
+    try {
+      // Clear any stale token before login attempt to avoid 401 from invalid tokens
+      await _apiClient.clearToken();
+      
+      final response = await _apiClient.dio.post('/api/whatsapp/send-otp', data: {
+        'phone': phone,
+      });
+      return ApiResponse.fromJson(response.data, (json) => json);
+    } on DioException catch (e) {
+      return ApiResponse(
+        success: false,
+        message: e.response?.data['message'] ?? 'Gagal mengirim OTP via WhatsApp',
+        code: e.response?.statusCode ?? 500,
+      );
+    }
+  }
+
+  // WhatsApp OTP: Verify
+  Future<ApiResponse<Map<String, dynamic>>> verifyWhatsAppOtp(String phone, String code) async {
+    try {
+      final response = await _apiClient.dio.post('/api/whatsapp/verify-otp', data: {
+        'phone': phone,
+        'code': code,
+      });
+
+      if (response.statusCode == 200) {
+        final apiRes = ApiResponse<Map<String, dynamic>>.fromJson(
+          response.data,
+          (json) => json as Map<String, dynamic>,
+        );
+        
+        if (apiRes.success && apiRes.data != null) {
+          final token = apiRes.data!['token'];
+          if (token != null) {
+            await _apiClient.saveToken(token);
+          }
+        }
+        return apiRes;
+      }
+      return ApiResponse(success: false, message: 'Verifikasi WhatsApp gagal', code: response.statusCode ?? 500);
+    } on DioException catch (e) {
+      return ApiResponse(
+        success: false,
+        message: e.response?.data['message'] ?? 'Gagal verifikasi WhatsApp',
+        code: e.response?.statusCode ?? 500,
+      );
+    }
+  }
+
   // Logout
   Future<void> logout() async {
     try {
       await _apiClient.dio.post('/api/logout');
+    } catch (e) {
+      // Ignore network errors for logout to ensure local logout completes
+      debugPrint('Logout request failed: $e');
     } finally {
       await _apiClient.clearToken();
       // Safely sign out from social providers

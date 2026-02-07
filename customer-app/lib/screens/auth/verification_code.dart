@@ -4,8 +4,13 @@ import 'package:shared/services/auth_service.dart';
 import '../home.dart';
 
 class VerificationCodeScreen extends StatefulWidget {
-  final String email;
-  const VerificationCodeScreen({super.key, required this.email});
+  final String identifier;
+  final bool isPhone;
+  const VerificationCodeScreen({
+    super.key, 
+    required this.identifier, 
+    this.isPhone = false,
+  });
 
   @override
   State<VerificationCodeScreen> createState() => _VerificationCodeScreenState();
@@ -18,7 +23,10 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
   Future<void> _verifyOtp(String code) async {
     setState(() => _isLoading = true);
     try {
-      final response = await _authService.verifyOtp(widget.email, code);
+      final response = widget.isPhone 
+          ? await _authService.verifyWhatsAppOtp(widget.identifier, code)
+          : await _authService.verifyOtp(widget.identifier, code);
+          
       if (!mounted) return;
 
       if (response.success) {
@@ -97,7 +105,7 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
                   const SizedBox(height: 12),
                   
                   Text(
-                    'Please type the verification code sent to\n${widget.email}',
+                    'Please type the verification code sent to\n${widget.identifier}',
                     style: const TextStyle(
                       fontFamily: 'SofiaPro',
                       fontSize: 16,
