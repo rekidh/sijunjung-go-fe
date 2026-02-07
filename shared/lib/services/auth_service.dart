@@ -30,8 +30,12 @@ class AuthService {
         
         if (apiRes.success && apiRes.data != null) {
           final token = apiRes.data!['token'];
+          final refreshToken = apiRes.data!['refresh_token'];
           if (token != null) {
             await _apiClient.saveToken(token);
+            if (refreshToken != null) {
+              await _apiClient.saveRefreshToken(refreshToken);
+            }
           }
         }
         return apiRes;
@@ -90,8 +94,12 @@ class AuthService {
         
         if (apiRes.success && apiRes.data != null) {
           final token = apiRes.data!['token'];
+          final refreshToken = apiRes.data!['refresh_token'];
           if (token != null) {
             await _apiClient.saveToken(token);
+            if (refreshToken != null) {
+              await _apiClient.saveRefreshToken(refreshToken);
+            }
           }
         }
         return apiRes;
@@ -141,8 +149,12 @@ class AuthService {
         
         if (apiRes.success && apiRes.data != null) {
           final token = apiRes.data!['token'];
+          final refreshToken = apiRes.data!['refresh_token'];
           if (token != null) {
             await _apiClient.saveToken(token);
+            if (refreshToken != null) {
+              await _apiClient.saveRefreshToken(refreshToken);
+            }
           }
         }
         return apiRes;
@@ -204,8 +216,12 @@ class AuthService {
         
         if (apiRes.success && apiRes.data != null) {
           final token = apiRes.data!['token'];
+          final refreshToken = apiRes.data!['refresh_token'];
           if (token != null) {
             await _apiClient.saveToken(token);
+            if (refreshToken != null) {
+              await _apiClient.saveRefreshToken(refreshToken);
+            }
           }
         }
         return apiRes;
@@ -236,8 +252,12 @@ class AuthService {
           
           if (apiRes.success && apiRes.data != null) {
             final token = apiRes.data!['token'];
+            final refreshToken = apiRes.data!['refresh_token'];
             if (token != null) {
               await _apiClient.saveToken(token);
+              if (refreshToken != null) {
+                await _apiClient.saveRefreshToken(refreshToken);
+              }
             }
           }
           return apiRes;

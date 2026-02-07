@@ -35,11 +35,49 @@ class ApiClient {
           }
           return handler.next(options);
         },
-        onError: (DioException e, handler) {
+        onError: (DioException e, handler) async {
           debugPrint('DIO ERROR: ${e.type} -> ${e.message}');
           if (e.response != null) {
             debugPrint('DIO ERROR DATA: ${e.response?.data}');
           }
+
+          // Handle 401 Unauthorized - Try to refresh token
+          if (e.response?.statusCode == 401) {
+            final refreshToken = await _storage.read(key: 'refresh_token');
+            if (refreshToken != null) {
+              try {
+                // Use a separate Dio instance to avoid interceptor recursion
+                final refreshDio = Dio(BaseOptions(baseUrl: baseUrl));
+                final response = await refreshDio.post('/api/refresh-token', data: {
+                  'refresh_token': refreshToken,
+                });
+
+                if (response.statusCode == 200) {
+                  final newToken = response.data['data']['token'];
+                  final newRefreshToken = response.data['data']['refresh_token'];
+                  
+                  if (newToken != null) {
+                    await saveToken(newToken);
+                    if (newRefreshToken != null) {
+                      await saveRefreshToken(newRefreshToken);
+                    }
+
+                    // Retry the original request with the new token
+                    final options = e.requestOptions;
+                    options.headers['Authorization'] = 'Bearer $newToken';
+                    
+                    final retryResponse = await dio.fetch(options);
+                    return handler.resolve(retryResponse);
+                  }
+                }
+              } catch (refreshError) {
+                debugPrint('TOKEN REFRESH FAILED: $refreshError');
+                // If refresh fails, clear tokens and let the error pass through
+                await clearToken();
+              }
+            }
+          }
+
           return handler.next(e);
         },
       ),
@@ -50,11 +88,20 @@ class ApiClient {
     await _storage.write(key: 'token', value: token);
   }
 
+  Future<void> saveRefreshToken(String token) async {
+    await _storage.write(key: 'refresh_token', value: token);
+  }
+
   Future<String?> getToken() async {
     return await _storage.read(key: 'token');
   }
 
+  Future<String?> getRefreshToken() async {
+    return await _storage.read(key: 'refresh_token');
+  }
+
   Future<void> clearToken() async {
     await _storage.delete(key: 'token');
+    await _storage.delete(key: 'refresh_token');
   }
 }
