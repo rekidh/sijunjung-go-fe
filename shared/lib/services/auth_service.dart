@@ -111,8 +111,14 @@ class AuthService {
       await _apiClient.dio.post('/api/logout');
     } finally {
       await _apiClient.clearToken();
-      await GoogleSignIn().signOut();
-      await FacebookAuth.instance.logOut();
+      // Safely sign out from social providers
+      try {
+        await GoogleSignIn().signOut();
+      } catch (_) {}
+      
+      try {
+        await FacebookAuth.instance.logOut();
+      } catch (_) {}
     }
   }
 
