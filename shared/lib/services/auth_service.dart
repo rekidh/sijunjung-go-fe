@@ -123,19 +123,16 @@ class AuthService {
         scopes: ['email', 'profile'],
         serverClientId:"1044181229454-lgt5dcunhu3k9113hr05dcefdo4gn62i.apps.googleusercontent.com"
       );
-      
+
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
         return ApiResponse(success: false, message: 'Google sign in dibatalkan', code: 401);
       }
 
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final String? serverAuthCode = googleUser.serverAuthCode;
 
-      final response = await _apiClient.dio.get('/api/auth/google/callback', queryParameters: {
-        'code': serverAuthCode,
+      final response = await _apiClient.dio.post('/api/auth/google-mobile', data: {
         'id_token': googleAuth.idToken,
-        'access_token': googleAuth.accessToken,
       });
 
       if (response.statusCode == 200) {
