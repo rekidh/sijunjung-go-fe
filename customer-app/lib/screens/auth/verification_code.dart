@@ -141,11 +141,21 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () async {
-                          // TODO: Implement resend-otp in AuthService
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Resending code...')),
-                          );
+                        onTap: _isLoading ? null : () async {
+                          setState(() => _isLoading = true);
+                          try {
+                            final response = widget.isPhone
+                                ? await _authService.sendWhatsAppOtp(widget.identifier)
+                                : await _authService.resendEmailOtp(widget.identifier);
+                            
+                            if (!mounted) return;
+                            
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(response.message)),
+                            );
+                          } finally {
+                            if (mounted) setState(() => _isLoading = false);
+                          }
                         },
                         child: const Text(
                           'Please resend',

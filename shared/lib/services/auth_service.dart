@@ -114,6 +114,22 @@ class AuthService {
     }
   }
 
+  // Resend OTP (Email)
+  Future<ApiResponse<dynamic>> resendEmailOtp(String email) async {
+    try {
+      final response = await _apiClient.dio.post('/api/resend-otp', data: {
+        'email': email,
+      });
+      return ApiResponse.fromJson(response.data, (json) => json);
+    } on DioException catch (e) {
+      return ApiResponse(
+        success: false,
+        message: e.response?.data['message'] ?? 'Gagal mengirim ulang OTP',
+        code: e.response?.statusCode ?? 500,
+      );
+    }
+  }
+
   // WhatsApp OTP: Send
   Future<ApiResponse<dynamic>> sendWhatsAppOtp(String phone) async {
     try {
