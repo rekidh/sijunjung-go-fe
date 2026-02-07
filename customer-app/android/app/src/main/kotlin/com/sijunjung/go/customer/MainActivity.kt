@@ -1,4 +1,4 @@
-package com.example.sijunjung_go_fe_customer
+package com.sijunjung.go.customer
 
 import io.flutter.embedding.android.FlutterActivity
 

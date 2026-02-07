@@ -121,25 +121,21 @@ class AuthService {
     try {
       final googleSignIn = GoogleSignIn(
         scopes: ['email', 'profile'],
+        serverClientId:"1044181229454-lgt5dcunhu3k9113hr05dcefdo4gn62i.apps.googleusercontent.com"
       );
       
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
-        return ApiResponse(success: false, message: 'Google sign in diluncurkan', code: 401);
+        return ApiResponse(success: false, message: 'Google sign in dibatalkan', code: 401);
       }
 
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
       final String? serverAuthCode = googleUser.serverAuthCode;
 
-      // Note: Backend seems to expect 'code' in callback
-      // If serverAuthCode is null, we might need idToken, but let's follow the callback param
-      if (serverAuthCode == null) {
-         // Fallback to idToken if necessary, but backend spec says 'code'
-         // For real production, you'd usually pass idToken to a separate POST endpoint
-      }
-
       final response = await _apiClient.dio.get('/api/auth/google/callback', queryParameters: {
         'code': serverAuthCode,
+        'id_token': googleAuth.idToken,
+        'access_token': googleAuth.accessToken,
       });
 
       if (response.statusCode == 200) {
