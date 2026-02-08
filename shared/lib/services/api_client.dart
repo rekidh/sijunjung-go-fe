@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../config/env_config.dart';
 
 class ApiClient {
-  static const String baseUrl = 'https://sijunjung-go-production.up.railway.app';
+  static const String baseUrl = EnvConfig.baseUrl;
   final Dio dio;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 

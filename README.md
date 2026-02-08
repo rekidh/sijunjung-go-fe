@@ -17,10 +17,10 @@ Untuk mempermudah workflow, kami menyediakan script `start-apps` dan `Makefile`.
 
 Gunakan perintah `make` untuk menjalankan perintah yang sering digunakan:
 
-- **Customer App**: `make customer`
-- **Driver App**: `make driver`
-- **Merchant App**: `make merchant`
-- **Sync Dependencies**: `make sync` (Menjalankan `flutter pub get` di semua modul)
+- **Customer App**: `make customer` (Production) atau `make customer-dev` (Development)
+- **Driver App**: `make driver` (Production) atau `make driver-dev` (Development)
+- **Merchant App**: `make merchant` (Production) atau `make merchant-dev` (Development)
+- **Sync Dependencies**: `make sync`
 
 ### Menggunakan Script `start-apps` Secara Langsung
 
@@ -34,14 +34,24 @@ Anda juga bisa menjalankan script secara manual dengan opsi yang lebih detail:
 ```
 
 #### Opsi Tambahan:
+- `--env [dev|prod]`: Menentukan environment (Default: `prod`).
 - `--clean`: Menjalankan `flutter clean` sebelum start.
 - `--release`: Menjalankan aplikasi dalam mode release.
 - `--device [id]`: Menentukan ID perangkat tujuan.
 
 **Contoh:**
 ```bash
-./start-apps --customer-app --clean --device emulator-5554
+./start-apps --customer-app --env dev --clean --device emulator-5554
 ```
+
+## Management Environment
+
+Kami menggunakan `dart-define` untuk mengelola environment variable.
+
+- **Production**: `https://sijunjung-go-production.up.railway.app`
+- **Development**: `https://sijunjung-go-dev.up.railway.app`
+
+Lokasi konfigurasi ada di `shared/lib/config/env_config.dart`.
 
 ## Sinkronisasi Dependency
 

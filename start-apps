@@ -23,6 +23,7 @@ show_usage() {
     echo "  --driver-app, -d         Start Driver App"
     echo "  --merchant-app, -m       Start Merchant App"
     echo "  --sync, -s               Sync dependencies for all apps and shared"
+    echo "  --env, -e [dev|prod]     Specify environment (default: prod)"
     echo "  --device [device-id]     Specify device ID (optional)"
     echo "  --release                Run in release mode (default: debug)"
     echo "  --clean                  Clean before running"
@@ -71,8 +72,15 @@ run_app() {
     local device=$3
     local mode=$4
     local clean=$5
+    local env=$6
 
-    echo -e "${GREEN}Starting ${app_name}...${NC}"
+    local base_url="https://sijunjung-go-production.up.railway.app"
+    if [ "$env" = "dev" ]; then
+        base_url="https://sijunjung-go-dev.up.railway.app"
+    fi
+
+    echo -e "${GREEN}Starting ${app_name} in ${env} mode...${NC}"
+    echo -e "${YELLOW}Base URL: ${base_url}${NC}"
     echo -e "${YELLOW}App Directory: ${app_dir}${NC}"
 
     cd "$app_dir"
@@ -96,6 +104,9 @@ run_app() {
         flutter_cmd="$flutter_cmd --release"
     fi
 
+    # Add environment defines
+    flutter_cmd="$flutter_cmd --dart-define=BASE_URL=$base_url --dart-define=ENV_NAME=$env"
+
     echo -e "${GREEN}Running: $flutter_cmd${NC}"
     echo ""
     
@@ -108,6 +119,7 @@ APP_TO_RUN=""
 DEVICE_ID=""
 MODE="debug"
 CLEAN=false
+ENV="production"
 
 if [ $# -eq 0 ]; then
     show_usage
@@ -145,6 +157,10 @@ while [[ $# -gt 0 ]]; do
             CLEAN=true
             shift
             ;;
+        --env|-e)
+            ENV="$2"
+            shift 2
+            ;;
         --help|-h)
             show_usage
             exit 0
@@ -179,5 +195,14 @@ fi
 # Check Flutter installation
 check_flutter
 
+# Validate environment
+if [[ "$ENV" != "dev" && "$ENV" != "production" && "$ENV" != "prod" ]]; then
+    ENV="production"
+fi
+
+if [ "$ENV" = "prod" ]; then
+    ENV="production"
+fi
+
 # Run the selected app
-run_app "$APP_TO_RUN" "$APP_DIR" "$DEVICE_ID" "$MODE" "$CLEAN"
+run_app "$APP_TO_RUN" "$APP_DIR" "$DEVICE_ID" "$MODE" "$CLEAN" "$ENV"
