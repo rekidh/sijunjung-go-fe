@@ -1,0 +1,183 @@
+#!/bin/bash
+
+# Sijunjung Go Frontend - App Starter Script
+# Usage: ./start-apps.sh [OPTIONS]
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Function to display usage
+show_usage() {
+    echo -e "${BLUE}Sijunjung Go - App Starter${NC}"
+    echo ""
+    echo "Usage: ./start-apps.sh [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  --customer-app, -c       Start Customer App"
+    echo "  --driver-app, -d         Start Driver App"
+    echo "  --merchant-app, -m       Start Merchant App"
+    echo "  --sync, -s               Sync dependencies for all apps and shared"
+    echo "  --device [device-id]     Specify device ID (optional)"
+    echo "  --release                Run in release mode (default: debug)"
+    echo "  --clean                  Clean before running"
+    echo "  --help, -h               Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  ./start-apps.sh --customer-app"
+    echo "  ./start-apps.sh -c"
+    echo "  ./start-apps.sh --driver-app --clean"
+    echo "  ./start-apps.sh --merchant-app --device emulator-5554"
+    echo "  ./start-apps.sh --customer-app --release"
+}
+
+# Function to check if Flutter is installed
+check_flutter() {
+    if ! command -v flutter &> /dev/null; then
+        echo -e "${RED}Error: Flutter is not installed or not in PATH${NC}"
+        exit 1
+    fi
+}
+
+# Function to sync dependencies for all projects
+sync_dependencies() {
+    local projects=("shared" "customer-app" "driver-app" "merchant-app")
+    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+    echo -e "${BLUE}Starting dependency synchronization...${NC}"
+
+    for project in "${projects[@]}"; do
+        local project_dir="$script_dir/$project"
+        if [ -d "$project_dir" ]; then
+            echo -e "${YELLOW}Syncing dependencies for $project...${NC}"
+            (cd "$project_dir" && flutter pub get)
+        else
+            echo -e "${RED}Warning: Directory $project_dir not found, skipping.${NC}"
+        fi
+    done
+
+    echo -e "${GREEN}All dependencies synchronized!${NC}"
+}
+
+# Function to run flutter app
+run_app() {
+    local app_name=$1
+    local app_dir=$2
+    local device=$3
+    local mode=$4
+    local clean=$5
+
+    echo -e "${GREEN}Starting ${app_name}...${NC}"
+    echo -e "${YELLOW}App Directory: ${app_dir}${NC}"
+
+    cd "$app_dir"
+
+    # Clean if requested
+    if [ "$clean" = true ]; then
+        echo -e "${YELLOW}Cleaning project...${NC}"
+        flutter clean
+        echo -e "${YELLOW}Getting dependencies...${NC}"
+        flutter pub get
+    fi
+
+    # Build flutter run command
+    local flutter_cmd="flutter run"
+    
+    if [ -n "$device" ]; then
+        flutter_cmd="$flutter_cmd -d $device"
+    fi
+
+    if [ "$mode" = "release" ]; then
+        flutter_cmd="$flutter_cmd --release"
+    fi
+
+    echo -e "${GREEN}Running: $flutter_cmd${NC}"
+    echo ""
+    
+    # Run the app
+    eval $flutter_cmd
+}
+
+# Parse command line arguments
+APP_TO_RUN=""
+DEVICE_ID=""
+MODE="debug"
+CLEAN=false
+
+if [ $# -eq 0 ]; then
+    show_usage
+    exit 0
+fi
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --customer-app|-c)
+            APP_TO_RUN="customer-app"
+            shift
+            ;;
+        --driver-app|-d)
+            APP_TO_RUN="driver-app"
+            shift
+            ;;
+        --merchant-app|-m)
+            APP_TO_RUN="merchant-app"
+            shift
+            ;;
+        --sync|-s)
+            check_flutter
+            sync_dependencies
+            exit 0
+            ;;
+        --device)
+            DEVICE_ID="$2"
+            shift 2
+            ;;
+        --release)
+            MODE="release"
+            shift
+            ;;
+        --clean)
+            CLEAN=true
+            shift
+            ;;
+        --help|-h)
+            show_usage
+            exit 0
+            ;;
+        *)
+            echo -e "${RED}Error: Unknown option $1${NC}"
+            echo ""
+            show_usage
+            exit 1
+            ;;
+    esac
+done
+
+# Check if an app was selected
+if [ -z "$APP_TO_RUN" ]; then
+    echo -e "${RED}Error: No app specified${NC}"
+    echo ""
+    show_usage
+    exit 1
+fi
+
+# Get the script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+APP_DIR="$SCRIPT_DIR/$APP_TO_RUN"
+
+# Check if app directory exists
+if [ ! -d "$APP_DIR" ]; then
+    echo -e "${RED}Error: App directory not found: $APP_DIR${NC}"
+    exit 1
+fi
+
+# Check Flutter installation
+check_flutter
+
+# Run the selected app
+run_app "$APP_TO_RUN" "$APP_DIR" "$DEVICE_ID" "$MODE" "$CLEAN"
