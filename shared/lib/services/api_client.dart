@@ -48,7 +48,7 @@ class ApiClient {
               try {
                 // Use a separate Dio instance to avoid interceptor recursion
                 final refreshDio = Dio(BaseOptions(baseUrl: baseUrl));
-                final response = await refreshDio.post('/api/refresh-token', data: {
+                final response = await refreshDio.post('/api/user/refresh-token', data: {
                   'refresh_token': refreshToken,
                 });
 

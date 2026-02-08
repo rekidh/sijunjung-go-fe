@@ -17,7 +17,7 @@ class AuthService {
   // Login User
   Future<ApiResponse<Map<String, dynamic>>> login(String email, String password) async {
     try {
-      final response = await _apiClient.dio.post('/api/login', data: {
+      final response = await _apiClient.dio.post('/api/user/login', data: {
         'email': email,
         'password': password,
       });
@@ -62,7 +62,7 @@ class AuthService {
     required String password,
   }) async {
     try {
-      final response = await _apiClient.dio.post('/api/register', data: {
+      final response = await _apiClient.dio.post('/api/user/register', data: {
         'full_name': fullName,
         'email': email,
         'password': password,
@@ -81,7 +81,7 @@ class AuthService {
   // Verify OTP (Email)
   Future<ApiResponse<Map<String, dynamic>>> verifyOtp(String email, String code) async {
     try {
-      final response = await _apiClient.dio.post('/api/verify-otp', data: {
+      final response = await _apiClient.dio.post('/api/user/verify-otp', data: {
         'email': email,
         'code': code,
       });
@@ -117,7 +117,7 @@ class AuthService {
   // Resend OTP (Email)
   Future<ApiResponse<dynamic>> resendEmailOtp(String email) async {
     try {
-      final response = await _apiClient.dio.post('/api/resend-otp', data: {
+      final response = await _apiClient.dio.post('/api/user/resend-otp', data: {
         'email': email,
       });
       return ApiResponse.fromJson(response.data, (json) => json);
@@ -136,7 +136,7 @@ class AuthService {
       // Clear any stale token before login attempt to avoid 401 from invalid tokens
       await _apiClient.clearToken();
       
-      final response = await _apiClient.dio.post('/api/whatsapp/send-otp', data: {
+      final response = await _apiClient.dio.post('/api/user/whatsapp/send-otp', data: {
         'phone': phone,
       });
       return ApiResponse.fromJson(response.data, (json) => json);
@@ -152,7 +152,7 @@ class AuthService {
   // WhatsApp OTP: Verify
   Future<ApiResponse<Map<String, dynamic>>> verifyWhatsAppOtp(String phone, String code) async {
     try {
-      final response = await _apiClient.dio.post('/api/whatsapp/verify-otp', data: {
+      final response = await _apiClient.dio.post('/api/user/whatsapp/verify-otp', data: {
         'phone': phone,
         'code': code,
       });
@@ -188,7 +188,7 @@ class AuthService {
   // Logout
   Future<void> logout() async {
     try {
-      await _apiClient.dio.post('/api/logout');
+      await _apiClient.dio.post('/api/user/logout');
     } catch (e) {
       // Ignore network errors for logout to ensure local logout completes
       debugPrint('Logout request failed: $e');
@@ -220,7 +220,7 @@ class AuthService {
 
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
-      final response = await _apiClient.dio.post('/api/auth/google-mobile', data: {
+      final response = await _apiClient.dio.post('/api/user/auth/google-mobile', data: {
         'id_token': googleAuth.idToken,
       });
 
@@ -256,7 +256,7 @@ class AuthService {
       if (result.status == LoginStatus.success) {
         final AccessToken accessToken = result.accessToken!;
         
-        final response = await _apiClient.dio.post('/api/auth/facebook', data: {
+        final response = await _apiClient.dio.post('/api/user/auth/facebook', data: {
           'access_token': accessToken.token,
         });
 
